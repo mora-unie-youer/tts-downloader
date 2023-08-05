@@ -19,13 +19,13 @@ pub enum Language {
     Korean,
 }
 
-impl Into<&'static str> for Language {
-    fn into(self) -> &'static str {
-        match self {
-            Self::Chinese => "chinese",
-            Self::English => "english",
-            Self::Japanese => "japanese",
-            Self::Korean => "korean",
+impl From<Language> for &'static str {
+    fn from(value: Language) -> Self {
+        match value {
+            Language::Chinese => "chinese",
+            Language::English => "english",
+            Language::Japanese => "japanese",
+            Language::Korean => "korean",
         }
     }
 }
