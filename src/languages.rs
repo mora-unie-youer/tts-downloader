@@ -29,3 +29,11 @@ impl From<Language> for &'static str {
         }
     }
 }
+
+/// HashMap of "language -> speakers ([male, female])" on Naver Papago
+pub const SPEAKERS: phf::Map<&'static str, [&'static str; 2]> = phf::phf_map! {
+    "chinese" => ["liangliang", "meimei"],
+    "english" => ["matt", "danna"],
+    "japanese" => ["shinji", "yuri"],
+    "korean" => ["jinho", "kyuri"],
+};
