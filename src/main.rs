@@ -1,8 +1,10 @@
 use clap::{Parser, ValueEnum};
-use languages::Language;
+use fetch::download_tts;
+use languages::{Language, Speaker};
 
 use crate::languages::SPEAKERS;
 
+pub mod fetch;
 pub mod languages;
 
 #[derive(Debug, Parser)]
@@ -21,14 +23,14 @@ struct Cli {
 
 #[derive(Clone, Copy, Default, Debug, ValueEnum)]
 enum Gender {
-    /// Download both male and female voice (default)
+    /// Download both male and female voices (default)
     #[default]
     Both,
 
-    /// Download only male voice
+    /// Download only male voices
     Male,
 
-    /// Download only female voice
+    /// Download only female voices
     Female,
 }
 
@@ -47,19 +49,34 @@ fn main() {
 
     // Fetch speakers
     let speakers = SPEAKERS.get(language.into()).unwrap();
-    let male_speakers = [speakers[0]];
-    let female_speakers = [speakers[1]];
 
     // Choosing required speakers
-    let requested_speakers = match gender {
-        Gender::Both => &speakers[..],
-        Gender::Male => &male_speakers,
-        Gender::Female => &female_speakers,
+    let requested_speakers: Vec<&str> = match gender {
+        Gender::Both => speakers.iter().map(|speaker| speaker.name()).collect(),
+        Gender::Male => speakers
+            .iter()
+            .filter(|speaker| matches!(speaker, Speaker::Male(_)))
+            .map(|speaker| speaker.name())
+            .collect(),
+        Gender::Female => speakers
+            .iter()
+            .filter(|speaker| matches!(speaker, Speaker::Female(_)))
+            .map(|speaker| speaker.name())
+            .collect(),
     };
 
-    dbg!(text);
     // Requesting TTS for each speaker
     for speaker in requested_speakers {
-        dbg!(speaker);
+        // Downloading TTS and receiving filename to which it was saved
+        let filename = match download_tts(speaker, &text) {
+            Ok(filename) => filename,
+            Err(e) => {
+                eprintln!("Error occured while TTS downloading: {e}");
+                continue;
+            }
+        };
+
+        // Printing filename, so the user could move files automatically
+        println!("{}", filename.display());
     }
 }

@@ -30,10 +30,30 @@ impl From<Language> for &'static str {
     }
 }
 
-/// HashMap of "language -> speakers ([male, female])" on Naver Papago
-pub const SPEAKERS: phf::Map<&'static str, [&'static str; 2]> = phf::phf_map! {
-    "chinese" => ["liangliang", "meimei"],
-    "english" => ["matt", "danna"],
-    "japanese" => ["shinji", "yuri"],
-    "korean" => ["jinho", "kyuri"],
+#[derive(Clone, Copy, Debug)]
+pub enum Speaker {
+    /// Defines male speaker
+    Male(&'static str),
+
+    /// Defines female speaker
+    Female(&'static str),
+}
+
+impl Speaker {
+    // Returns name of speaker
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::Male(name) => name,
+            Self::Female(name) => name,
+        }
+    }
+}
+
+/// HashMap of "language -> speakers" on tts.mp3
+pub const SPEAKERS: phf::Map<&str, &[Speaker]> = phf::phf_map! {
+    "chinese" => &[Speaker::Female("Zhiyu")],
+    "english" => &[Speaker::Female("Ivy"), Speaker::Female("Justin"), Speaker::Female("Joanna"), Speaker::Female("Kendra"),
+                Speaker::Female("Kimberly"), Speaker::Female("Salli"), Speaker::Male("Joey"), Speaker::Male("Mattew")],
+    "japanese" => &[Speaker::Male("Takumi"), Speaker::Female("Mizuki")],
+    "korean" => &[Speaker::Female("Seoyeon")],
 };
